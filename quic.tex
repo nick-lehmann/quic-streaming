@@ -43,6 +43,8 @@ In contrast to HTTP/1, where streaming was done using workarounds on top of an o
 
 As this paper aims to evaluate streaming, we have to first clarify what is exactly meant by this term. From the perspective of the QUIC transport layer, everything transport of bytes is a stream. However, a developer working with HTTP/3, an application layer built on top of QUIC, would differentiate between classical requests and responses on one side (which are realized using QUIC streams), and HTTP streaming on the other side. Typical examples of the latter are video players or conferencing tools where the next seconds of the video and audio are streamed to the client, either on-demand or as soon as they become available.
 
+This paper does not conduct any new experiments. Instead, we collect results from different papers released between 2016 and 2021 and compare them. Furthermore, we explain how QUIC has changed over the years to put the results from different times into context and to explain why some differ significantly from each other.
+
 \section{History}
 
 \subsection{HTTP/1}
