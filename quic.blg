@@ -1,0 +1,54 @@
+This is BibTeX, Version 0.99d (TeX Live 2021)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: quic.aux
+The style file: plain.bst
+Database file #1: references.bib
+Warning--entry type for "CloudflareTlsHandshake" isn't style-file defined
+--line 141 of file references.bib
+Warning--entry type for "RemoveServerPush" isn't style-file defined
+--line 149 of file references.bib
+Warning--entry type for "Quiche" isn't style-file defined
+--line 157 of file references.bib
+Warning--empty booktitle in HTTPoverUDP
+You've used 9 entries,
+            2118 wiz_defined-function locations,
+            555 strings with 6090 characters,
+and the built_in function-call counts, 4220 in all, are:
+= -- 399
+> -- 259
+< -- 5
++ -- 104
+- -- 94
+* -- 271
+:= -- 647
+add.period$ -- 27
+call.type$ -- 9
+change.case$ -- 74
+chr.to.int$ -- 0
+cite$ -- 10
+duplicate$ -- 179
+empty$ -- 283
+format.name$ -- 94
+if$ -- 930
+int.to.chr$ -- 0
+int.to.str$ -- 9
+missing$ -- 6
+newline$ -- 45
+num.names$ -- 18
+pop$ -- 103
+preamble$ -- 1
+purify$ -- 65
+quote$ -- 0
+skip$ -- 170
+stack$ -- 0
+substring$ -- 156
+swap$ -- 86
+text.length$ -- 5
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 36
+warning$ -- 1
+while$ -- 25
+width$ -- 10
+write$ -- 99
+(There were 4 warnings)

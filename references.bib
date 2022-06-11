@@ -1,0 +1,163 @@
+% "Normal" papers
+% They discuss HTTP/1, HTTP/2 and QUIC and mostly come to the conclusion, that QUIC often outperforms the other one
+% but looses in certain scenarios.
+
+% Best overall explanation of the protocols
+@inproceedings{HowQuickIsQuic,
+  author    = {Megyesi, Péter and Krämer, Zsolt and Molnár, Sándor},
+  booktitle = {2016 IEEE International Conference on Communications (ICC)},
+  title     = {How quick is QUIC?},
+  year      = {2016},
+  volume    = {},
+  number    = {},
+  pages     = {1-6},
+  doi       = {10.1109/ICC.2016.7510788}
+}
+
+@inproceedings{HTTPoverUDP,
+  author = {Carlucci, Gaetano and De Cicco, Luca and Mascolo, Saverio},
+  year   = {2015},
+  month  = {04},
+  pages  = {},
+  title  = {HTTP over UDP: an experimental investigation of QUIC},
+  doi    = {10.1145/2695664.2695706}
+}
+
+@inproceedings{Google,
+  author    = {Langley, Adam and Riddoch, Alistair and Wilk, Alyssa and Vicente, Antonio and Krasic, Charles and Zhang, Dan and Yang, Fan and Kouranov, Fedor and Swett, Ian and Iyengar, Janardhan and Bailey, Jeff and Dorfman, Jeremy and Roskind, Jim and Kulik, Joanna and Westin, Patrik and Tenneti, Raman and Shade, Robbie and Hamilton, Ryan and Vasiliev, Victor and Chang, Wan-Teh and Shi, Zhongyi},
+  title     = {The QUIC Transport Protocol: Design and Internet-Scale Deployment},
+  year      = {2017},
+  isbn      = {9781450346535},
+  publisher = {Association for Computing Machinery},
+  address   = {New York, NY, USA},
+  url       = {https://doi.org/10.1145/3098822.3098842},
+  doi       = {10.1145/3098822.3098842},
+  booktitle = {Proceedings of the Conference of the ACM Special Interest Group on Data Communication},
+  pages     = {183–196},
+  numpages  = {14},
+  location  = {Los Angeles, CA, USA},
+  series    = {SIGCOMM '17}
+}
+
+@inproceedings{Cook,
+  author = {Cook, Sarah and Mathieu, Bertrand and Truong, Patrick and Hamchaoui, Isabelle},
+  title  = {QUIC: Better for what and for whom?},
+  year   = {2017},
+  month  = {05},
+  pages  = {1-6},
+  doi    = {10.1109/ICC.2017.7997281}
+}
+
+% QUIC did not perform well
+% Testbed experiment with top 1000 websites
+@inproceedings{Nepomuceno,
+  author    = {Nepomuceno, Késsia and Oliveira, Igor Nogueira de and Aschoff, Rafael Roque and Bezerra, Daniel and Ito, Maria Silvia and Melo, Wesley and Sadok, Djamel and Szabó, Géza},
+  booktitle = {2018 IEEE Symposium on Computers and Communications (ISCC)},
+  title     = {QUIC and TCP: A Performance Evaluation},
+  year      = {2018},
+  volume    = {},
+  number    = {},
+  pages     = {00045-00051},
+  doi       = {10.1109/ISCC.2018.8538687}
+}
+
+% Compares HTTP2/2+TCP+TLS against HTTP/2+QUIC
+@inproceedings{Yu,
+  author    = {Yu, Yajun and Xu, Mingwei and Yang, Yuan},
+  booktitle = {2017 IEEE 36th International Performance Computing and Communications Conference (IPCCC)},
+  title     = {When QUIC meets TCP: An experimental study},
+  year      = {2017},
+  volume    = {},
+  number    = {},
+  pages     = {1-8},
+  doi       = {10.1109/PCCC.2017.8280429}
+}
+
+
+% Controversial papers
+% They come to a different conclusion and investigate QUIC more in depth.
+@inproceedings{Kakhki,
+  author    = {Kakhki, Arash Molavi and Jero, Samuel and Choffnes, David and Nita-Rotaru, Cristina and Mislove, Alan},
+  title     = {Taking a Long Look at QUIC: An Approach for Rigorous Evaluation of Rapidly Evolving Transport Protocols},
+  year      = {2017},
+  isbn      = {9781450351188},
+  publisher = {Association for Computing Machinery},
+  address   = {New York, NY, USA},
+  url       = {https://doi.org/10.1145/3131365.3131368},
+  doi       = {10.1145/3131365.3131368},
+  booktitle = {Proceedings of the 2017 Internet Measurement Conference},
+  pages     = {290–303},
+  numpages  = {14},
+  keywords  = {QUIC, transport-layer performance},
+  location  = {London, United Kingdom},
+  series    = {IMC '17}
+}
+
+% Additional papers
+% They evaluate QUIC in different contexts, either by implementing it differently or by proposing
+% changes to the protocol. 
+@inproceedings{Kernel,
+  author    = {Wang, Peng and Bianco, Carmine and Riihij\"{a}rvi, Janne and Petrova, Marina},
+  title     = {Implementation and Performance Evaluation of the QUIC Protocol in Linux Kernel},
+  year      = {2018},
+  isbn      = {9781450359603},
+  publisher = {Association for Computing Machinery},
+  address   = {New York, NY, USA},
+  url       = {https://doi.org/10.1145/3242102.3242106},
+  doi       = {10.1145/3242102.3242106},
+  booktitle = {Proceedings of the 21st ACM International Conference on Modeling, Analysis and Simulation of Wireless and Mobile Systems},
+  pages     = {227–234},
+  numpages  = {8},
+  keywords  = {quic, tcp, wlan, measurements, kernel implementation, open source},
+  location  = {Montreal, QC, Canada},
+  series    = {MSWIM '18}
+}
+
+
+% Resources
+@misc{RFC,
+  series       = {Request for Comments},
+  number       = 9000,
+  howpublished = {RFC 9000},
+  publisher    = {RFC Editor},
+  doi          = {10.17487/RFC9000},
+  url          = {https://www.rfc-editor.org/info/rfc9000},
+  author       = {Jana Iyengar and Martin Thomson},
+  title        = {{QUIC: A UDP-Based Multiplexed and Secure Transport}},
+  pagetotal    = 151,
+  year         = 2021,
+  month        = may,
+  abstract     = {This document defines the core of the QUIC transport protocol. QUIC provides applications with flow-controlled streams for structured communication, low-latency connection establishment, and network path migration. QUIC includes security measures that ensure confidentiality, integrity, and availability in a range of deployment circumstances. Accompanying documents describe the integration of TLS for key negotiation, loss detection, and an exemplary congestion control algorithm.}
+}
+
+@online{HTTP3Explained,
+  author  = {Daniel Stenberg},
+  title   = {HTTP/3 explained},
+  year    = 2021,
+  url     = {QUIC outperforms HTTP/2 and HTTP/1 \cite{HowQuickIsQuic}},
+  urldate = {2022-05-20}
+}
+
+@online{CloudflareTlsHandshake,
+  author  = {Cloudflare},
+  title   = {Was passiert bei einem TLS Handshake?},
+  year    = {2021},
+  url     = {https://www.cloudflare.com/de-de/learning/ssl/what-happens-in-a-tls-handshake},
+  urldate = {2022-05-20}
+}
+
+@online{RemoveServerPush,
+  author  = {Brad Lassey},
+  title   = {Intent to Remove: HTTP/2 and gQUIC server push},
+  year    = {2020},
+  url     = {https://groups.google.com/a/chromium.org/g/blink-dev/c/K3rYLvmQUBY/m/vOWBKZGoAQAJ},
+  urldate = {2022-06-01}
+}
+
+@online{Quiche,
+  author  = {Cloudflare},
+  title   = {Quiche - Savoury implementation of the QUIC transport protocol and HTTP/3},
+  year    = {2022},
+  url     = {https://docs.rs/quiche/0.14.0/quiche},
+  urldate = {2022-05-10}
+}

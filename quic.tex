@@ -1,7 +1,6 @@
 \documentclass[conference]{IEEEtran}
 
 \IEEEoverridecommandlockouts
-% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
 
 \usepackage{cite}
 \usepackage{amsmath,amssymb,amsfonts}
@@ -18,7 +17,6 @@
 
 \author{\IEEEauthorblockN{1\textsuperscript{st} Nick Lehmann}
   \IEEEauthorblockA{
-    % \textit{dept. name of organization (of Aff.)} \\
     \textit{TU Dresden}\\
     Dresden, Germany \\
     nick.lehmann@mailbox.tu-dresden.de
@@ -34,226 +32,268 @@ or Math in Paper Title or Abstract.
 \end{abstract}
 
 \begin{IEEEkeywords}
-component, formatting, style, styling, insert
+QUIC, HTTP, Performance
 \end{IEEEkeywords}
 
 \section{Introduction}
-This document is a model and instructions for \LaTeX.
-Please observe the conference page limits. 
 
-\section{Ease of Use}
+QUIC serves as a replacement for the network protocols that were the foundation for previous versions of HTTP. It replaces TCP by implementing a reliable connection on top of the otherwise unreliable UDP protocol. Furthermore, it replaces TLS with its encryption algorithm that allows for faster connection buildup. QUIC is often used as a synonym for HTTP/3, but it is not the case. However, since QUIC was designed and is exclusively used for HTTP/3, both terms are often used interchangeably. Strictly speaking, HTTP/3 is a reformulation of the widespread HTTP concepts on top of QUIC.
 
-\subsection{Maintaining the Integrity of the Specifications}
+In contrast to HTTP/1, where streaming was done using workarounds on top of an otherwise request-response-oriented protocol, QUIC was developed with streaming at its core. Streams are now the native concept and single requests are modeled on top of the streams.
 
-The IEEEtran class file is used to format your paper and style the text. All margins, 
-column widths, line spaces, and text fonts are prescribed; please do not 
-alter them. You may note peculiarities. For example, the head margin
-measures proportionately more than is customary. This measurement 
-and others are deliberate, using specifications that anticipate your paper 
-as one part of the entire proceedings, and not as an independent document. 
-Please do not revise any of the current designations.
+As this paper aims to evaluate streaming, we have to first clarify what is exactly meant by this term. From the perspective of the QUIC transport layer, everything transport of bytes is a stream. However, a developer working with HTTP/3, an application layer built on top of QUIC, would differentiate between classical requests and responses on one side (which are realized using QUIC streams), and HTTP streaming on the other side. Typical examples of the latter are video players or conferencing tools where the next seconds of the video and audio are streamed to the client, either on-demand or as soon as they become available.
 
-\section{Prepare Your Paper Before Styling}
-Before you begin to format your paper, first write and save the content as a 
-separate text file. Complete all content and organizational editing before 
-formatting. Please note sections \ref{AA}--\ref{SCM} below for more information on 
-proofreading, spelling and grammar.
+\section{History}
 
-Keep your text and graphic files separate until after the text has been 
-formatted and styled. Do not number text heads---{\LaTeX} will do that 
-for you.
+\subsection{HTTP/1}
+% 1995
 
-\subsection{Abbreviations and Acronyms}\label{AA}
-Define abbreviations and acronyms the first time they are used in the text, 
-even after they have been defined in the abstract. Abbreviations such as 
-IEEE, SI, MKS, CGS, ac, dc, and rms do not have to be defined. Do not use 
-abbreviations in the title or heads unless they are unavoidable.
+HTTP/1 is a request-response-oriented protocol. The client can send an arbitrary amount of requests to a server, which in return sends back a single response for each request made. This model was fine for the early days of the world-wide-web when all websites were static. 
 
-\subsection{Units}
+Typically, a browser installed on the user's machine acts as the HTTP client. If the user decides to visit a website, the browser would send a GET request to the server, which in return responds with an HTML document. While a pure HTML document can be enough to completely display a website, many websites need more assets to be displayed correctly. These assets often include images as well as Javascript and CSS files.
+
+Upon receiving the HTTP document, the browser can then build up additional TCP connections to fetch every individual asset needed to render the website. While this is a robust mechanism, it leaves a significant amount of performance on the table.
+
+% Limit to open TCP connections becomes the bottleneck
+TCP connections require the host to save some session state. Therefore, both clients and servers usually restrict the number of TCP connections that can be open at any time. This can further increase page loading time when a multitude of assets has to be fetched from the server \cite{HowQuickIsQuic}. 
+
+% pipeline failed as a workaround because of deployment issues
+
+% forces developers to concatenate CSS and Javascript files which hinders caching and delays processing 
+To work against the costs of fetching many small files from a server using TCP, developers started to bundle many assets into single files. However, this approach comes with a few disadvantages. Firstly, it adds a step and additional complexity to the development workflow. It also hinders caching.
+
+\subsection{HTTP/2 (SPDY)}
+
+% History
+In 2009, Google announced to work on a new network protocol called SPDY which was then deployed in 2010. Google tried to fix the issues mentioned with HTTP/1.
+
+% Streaming
+In contrast to HTTP/1, SPDY opens only a single TCP connection to the server. After that, it uses its framing layer to multiplex multiple requests over this single connection. These requests form bidirectional streams inside the connections. In addition, the server gained the ability to open streams too \cite{HowQuickIsQuic}.
+
+% Request prioritization
+Another feature of SPDY was request prioritization. Clients could specify a priority level for each stream and the server then schedules the data transfer to send the objects with the highest prioritization first. Hence, browsers were able to prioritize resources needed for rendering the page, e.g., Javascript code, while images outside of the initial viewport receive a lower priority \cite{HowQuickIsQuic}.
+
+% Header compression
+Many websites require many subrequests after the initial page has loaded. In HTTP/1, the client has to send all required HTTP headers again with each request. Therefore, SPDY introduces a header compression to reduce the amount of bytes that must be transmitted.
+
+% Server push
+In some cases, the server might already know which resources the client will likely request next. Using the new server push mechanism, the server can send these objects preemptively to the client. However, the server does not know which objects are already in the client's cache, and many objects transmitted using a server push were often unnecessary. Hence, the mechanism was not used to a great extent and Chromium has removed support for it \cite{RemoveServerPush}.
+
+% RFC
+% TODO
+
+% Performance
+The performance of SPDY is still under discussion. If SPDY outperforms HTTP/1 depends on the parameters of the underlying network link. The results of most studies can be summarised by the following findings.
+
 \begin{itemize}
-\item Use either SI (MKS) or CGS as primary units. (SI units are encouraged.) English units may be used as secondary units (in parentheses). An exception would be the use of English units as identifiers in trade, such as ``3.5-inch disk drive''.
-\item Avoid combining SI and CGS units, such as current in amperes and magnetic field in oersteds. This often leads to confusion because equations do not balance dimensionally. If you must use mixed units, clearly state the units for each quantity that you use in an equation.
-\item Do not mix complete spellings and abbreviations of units: ``Wb/m\textsuperscript{2}'' or ``webers per square meter'', not ``webers/m\textsuperscript{2}''. Spell out units when they appear in text: ``. . . a few henries'', not ``. . . a few H''.
-\item Use a zero before decimal points: ``0.25'', not ``.25''. Use ``cm\textsuperscript{3}'', not ``cc''.)
+  \item SPDY outperforms HTTP when the object count and RTT are high due to multiplexing and header compression
+  \item SPDY performs better when the bandwidth is low
+  \item HTTP performance degrades less when the package loss increases compared to SPDY
 \end{itemize}
 
-\subsection{Equations}
-Number equations consecutively. To make your 
-equations more compact, you may use the solidus (~/~), the exp function, or 
-appropriate exponents. Italicize Roman symbols for quantities and variables, 
-but not Greek symbols. Use a long dash rather than a hyphen for a minus 
-sign. Punctuate equations with commas or periods when they are part of a 
-sentence, as in:
-\begin{equation}
-a+b=\gamma\label{eq}
-\end{equation}
 
-Be sure that the 
-symbols in your equation have been defined before or immediately following 
-the equation. Use ``\eqref{eq}'', not ``Eq.~\eqref{eq}'' or ``equation \eqref{eq}'', except at 
-the beginning of a sentence: ``Equation \eqref{eq} is . . .''
+\section{QUIC}
 
-\subsection{\LaTeX-Specific Advice}
+% HTTP/3 uses the same semantics as the earlier revisions, including the same request methods, status codes, and message fields, but encodes them differently and maintains session state differently. 
+% Implemented completely in userspace to allow for faster iterations during its early development. 
+The introduction of a new network protocol is a very complex process. To prove that a new network protocol is an improvement over the status quo, researchers often create a reference implementation used to carry out real-world experiments. To facilitate the deployments of the QUIC reference implementations, its authors opted to use UDP as the underlying layer three protocol. UDP is not used as often as TCP but virtually every operating system supports it.
 
-Please use ``soft'' (e.g., \verb|\eqref{Eq}|) cross references instead
-of ``hard'' references (e.g., \verb|(1)|). That will make it possible
-to combine sections, add equations, or change the order of figures or
-citations without having to go through the file line by line.
+% However, there is no reason why QUIC could not become part of the Linux kernel, as well as other kernels. 
+UDP is a simple protocol that has no concept of a point-to-point connection and provides no guarantees. QUIC builds on top of this unreliable protocol. Current QUIC implementations run completely in userspace. This reduced the time for the prototype and increased the speed with which the author iterated on QUIC. In contrast, kernel-space implementations are faster due to fewer context switches. In May 2022, QUIC did not land in the Linux kernel just yet, but some researchers have already implemented and evaluated QUIC in the Linux kernel \cite{Kernel}.
 
-Please don't use the \verb|{eqnarray}| equation environment. Use
-\verb|{align}| or \verb|{IEEEeqnarray}| instead. The \verb|{eqnarray}|
-environment leaves unsightly spaces around relation symbols.
+% TCP HOL
+% UPD was chosen as it is supported on virtually every host and is very minimal. QUIC is implemented on top.
+While TCP has served its users well over the last decades, it has some serious design flaws. Head-of-line blocking (HOL) can occur in two different places in HTTP/1.
 
-Please note that the \verb|{subequations}| environment in {\LaTeX}
-will increment the main equation counter even when there are no
-equation numbers displayed. If you forget that, you might write an
-article in which the equation numbers skip from (17) to (20), causing
-the copy editors to wonder if you've discovered a new method of
-counting.
 
-{\BibTeX} does not work by magic. It doesn't get the bibliographic
-data from thin air but from .bib files. If you use {\BibTeX} to produce a
-bibliography you must send the .bib files. 
 
-{\LaTeX} can't read your mind. If you assign the same label to a
-subsubsection and a table, you might find that Table I has been cross
-referenced as Table IV-B3. 
+\subsection{Streaming and Multiplexing}
+% Streams are native concept; request-response model implemented on top
 
-{\LaTeX} does not have precognitive abilities. If you put a
-\verb|\label| command before the command that updates the counter it's
-supposed to be using, the label will pick up the last counter to be
-cross referenced instead. In particular, a \verb|\label| command
-should not go before the caption of a figure or a table.
+Streams are the fundamental concept of QUIC. After the client and server establish a connection, every participant can start a stream, send data over it, and close the stream at any time. 
 
-Do not use \verb|\nonumber| inside the \verb|{array}| environment. It
-will not stop equation numbers inside \verb|{array}| (there won't be
-any anyway) and it might stop a wanted equation number in the
-surrounding equation.
+To multiplex multiple streams over a single connection, an identifier is included in every stream frame.
 
-\subsection{Some Common Mistakes}\label{SCM}
+Participants communicate by exchanging UDP datagrams which can contain multiple QUIC packets. Most of the QUIC packets contain frames of which there are several types. Each frame includes data associated with a single stream.
+
+Similar to TCP, QUIC ensures the byte order, but only for a single stream and not between multiple streams.
+
+\subsection{Encryption}
+
+\begin{figure}[htbp]
+\includegraphics[width=8cm,keepaspectratio]{images/TLS handshake.png}
+\caption{TLS handshake \cite{CloudflareTlsHandshake}}
+\label{fig:tls-handshake}
+\end{figure}
+
+% Replaces SSL/TLS
+QUIC introduces a new encryption mechanism that replaces TLS. Figure \ref{fig:tls-handshake} shows the step involved in a TLS handshake. QUIC's encryption mechanism reduces the round trips required to establish a secure connection between client and server while its safety remains comparable to TLS. Its design resembles the Datagram Transport Layer Security \cite{HowQuickIsQuic}.
+
+\subsection{0RTT and 1RTT}
+% Connection ID included in every packet.
+QUIC includes a connection ID in every packet. This identifier replaces the traditional IP four-tuple, which consists of the source and destination IP address and their corresponding ports.
+
+% Used to cache parameters for connection when there has already been a connection between client and server.
+A pair of client and server can use the connection ID to cache the security parameters when they established the first secure connection between each other. A client can then utilize the cached parameters in future connections. Instead of negotiating the parameters again, it can immediately send data in the first packet, allowing for a 0RTT connection buildup.
+
+% Connection IDs also allow for a fast resume of the connection after the client changes the network interface. 
+Connection IDs have the additional benefit that they are independent of the IP address assigned to them by an internet service provider. It is common for mobile clients, e.g. cell phones, to physically move from the service area of a broadcast tower to the service area of the next one. By doing so, the mobile client usually receives a new IP address and has to inform the server of the new address to resume the connection. The usage of an address-independent connection identifier greatly simplifies these handovers \cite{HowQuickIsQuic}.
+
+% Connection for the first time -> first request sent over TCP to negotiate if server speaks QUIC.
+It is worth noting, that the 0RTT and 1RTT mechanisms of QUIC are only available if the client already knows that the server can speak QUIC. If the client does not know this in advance, it uses TCP and TLS for the connection. As stated in \cite{Google}, the server will then respond with an \textit{Alt-Svc} header in the HTTP response. After receiving the header, the client can attempt to establish a connection using QUIC. On subsequent HTTP requests, the client will try QUIC immediately. However, if the connection buildup fails or no packet is received within 300ms, the client will fall back to TCP and TLS.
+
+% Mobile applications might already know if the server speaks QUIC or not
+The drawback, that the first connection to a server has to be TCP, can be remedied in mobile applications as they often know which server they are going to talk to. For example, the YouTube app was one of the applications used by Google for testing QUIC. As both server and client are controlled by Google, they could skip the initial TCP connection. However, even in these cases, the application might have to fall back to TCP, as some routers block UDP, blocking QUIC altogether.
+
+\subsection{Congestion control algorithm, Hybrid Slow Start}
+% TCP-Cubic by default
+% A single QUIC connection is equivalent to multiple TCP connections. The congestion control algorithm can be configured to be similarly aggressive as multiple TCP connections.
+% - TCP outperforms QUIC when they compete \cite{Yu}
+% - QUIC outperforms TCP when they compete (cite missing)
+% Transfer window TBA
+
+\subsection{Flow control}
+% Flow control protects the receiver from getting overwhelmed by a very fast sender. Receivers only have a limited amount of memory to store data that was not already acknowledged.
+% Receivers advertises both the limit of total bytes per stream and per connection \cite[Section 4.1]{RFC}. 
+
+\subsection{Packet sizing}
+% 
+
+\subsection{Forward Error Correction (FEC)}
+% Proactive speculative retransmission of important packets.
+% Many early papers talk about this mechanism. Turned out to be harmful to performance. Canceled for version one but research topic for the second version.
+
+QUIC tried to decrease the latency of a connection through a technique called forward error correction (FEC). It speculated proactively which critical packets might get lost and retransmits them without waiting for a notification from the receiver. As a side effect, this would decrease the effective bandwidth of the link as data that was successfully sent after all gets transmitted twice. However, the authors of QUIC were willing to make this trade-off. 
+
+Many of the earlier papers about QUIC investigated the effects of FEC \cite{HTTPoverUDP}. They concluded that FEC negatively impacted the performance of QUIC. FEC was then removed from the roadmap for QUIC version one. Therefore, later papers ignore FEC altogether.
+
+When the flaws of the first implementation of FEC are fixed, this mechanism could decrease the time needed to start a QUIC stream even further. If the client speculates that the initial packet gets lost on the link, it could retransmit it without it waiting for another round trip for a notification. Due to the congestion control, QUIC is not likely to saturate the link at the beginning of the connection. Hence, transmitting a packet twice might not be noticeable.
+
+
+\section{Performance}
+\label{sec:performance}
+
+% Especially older papers published in 2017 and 2018 have used HTTP/2 in conjunction with QUIC \cite{Yu} \cite{Nepomuceno}. This contradicts the current association between QUIC and HTTP/3, but when those papers were published, HTTP/3 was not yet released and HTTP/2 was the only application of QUIC in practice. 
+
+QUIC was announced in 2013 by Google and since that, many researchers have tested the potential performance advantages compared to HTTP/1 and HTTP/2. As already mentioned, QUIC was implemented completely in user space to allow for rapid development iteration. While this allowed to easily change parts of QUIC, it also brings the disadvantage that the findings of papers are only valid for a certain point in time. In contrast, the TCP stack in Linux, the dominating operating system on servers, is more mature and results are valid for a significantly longer period. 
+
+Unfortunately, in some papers, researchers did not state which version of QUIC they used for their experiments. Even if all results would be annotated with a specific QUIC version, it makes comparing the findings of different papers challenging.
+
+Some researchers chose to test QUIC using Google Servers as it was often the best tested and most widely adopted deployment of QUIC. However, \cite{Nepomuceno} has raised the concern that using servers owned by Google might bias the results of their experiments towards QUIC. This raises the question of how choosing a different server might benefit one network protocol over another.
+
+One possible explanation could be that Google allocates more bandwidth to UDP. However, in his paper, Kakhki describes the parameterization of QUIC as one problem for different performance results between the open-source implementation and the one by Google \cite{Kakhki}. 
+
+We can gain an insight into what can be configured in QUIC by looking at Quiche, an open-source implementation of QUIC by Cloudflare \cite{Quiche}. It lists a variety of configuration options in its documentation. This list does not reveal the options used by Kakhki but gives us an idea of which options might have been changed. We can exclude options that have no obvious impact on performance, like the ticket key. Then, we are still left with many options that describe different initial and maximum sizes.
+
 \begin{itemize}
-\item The word ``data'' is plural, not singular.
-\item The subscript for the permeability of vacuum $\mu_{0}$, and other common scientific constants, is zero with subscript formatting, not a lowercase letter ``o''.
-\item In American English, commas, semicolons, periods, question and exclamation marks are located within quotation marks only when a complete thought or name is cited, such as a title or full quotation. When quotation marks are used, instead of a bold or italic typeface, to highlight a word or phrase, punctuation should appear outside of the quotation marks. A parenthetical phrase or statement at the end of a sentence is punctuated outside of the closing parenthesis (like this). (A parenthetical sentence is punctuated within the parentheses.)
-\item A graph within a graph is an ``inset'', not an ``insert''. The word alternatively is preferred to the word ``alternately'' (unless you really mean something that alternates).
-\item Do not use the word ``essentially'' to mean ``approximately'' or ``effectively''.
-\item In your paper title, if the words ``that uses'' can accurately replace the word ``using'', capitalize the ``u''; if not, keep using lower-cased.
-\item Be aware of the different meanings of the homophones ``affect'' and ``effect'', ``complement'' and ``compliment'', ``discreet'' and ``discrete'', ``principal'' and ``principle''.
-\item Do not confuse ``imply'' and ``infer''.
-\item The prefix ``non'' is not a word; it should be joined to the word it modifies, usually without a hyphen.
-\item There is no period after the ``et'' in the Latin abbreviation ``et al.''.
-\item The abbreviation ``i.e.'' means ``that is'', and the abbreviation ``e.g.'' means ``for example''.
+  \item Maximum size of the connection window (defaults to 24MB) and maximum size of stream windows (defaults to 16MB)
+  \item Initial data size for unidirectional and bidirectional streams
+  \item Maximum UDP payload size when receiving and sending
 \end{itemize}
-An excellent style manual for science writers is \cite{b7}.
 
-\subsection{Authors and Affiliations}
-\textbf{The class file is designed for, but not limited to, six authors.} A 
-minimum of one author is required for all conference articles. Author names 
-should be listed starting from left to right and then moving down to the 
-next line. This is the author sequence that will be used in future citations 
-and by indexing services. Names should not be listed in columns nor group by 
-affiliation. Please keep your affiliations as succinct as possible (for 
-example, do not differentiate among departments of the same organization).
+Kakhki and his team found appropriate values for these options in two ways. Firstly, they captured parameters exchanged between their client and the Google servers. Secondly, they adjusted parameters they could not observe in the handshake through grey-box testing until they matched the performance of their setup with the Google servers. They note that older versions used very conservative values for the maximum connection window. This explains why earlier papers usually report that QUIC performs worse than HTTP/1 when the bandwidth of the network link is large.
 
-\subsection{Identify the Headings}
-Headings, or heads, are organizational devices that guide the reader through 
-your paper. There are two types: component heads and text heads.
+\begin{figure*}[t]
+\centerline{\includegraphics[width=\textwidth]{images/Kakhki overview.png}}
+\caption{Comparison of experiments in \cite{Kakhki} to earlier papers}
+\label{fig:Kakhki Comparison}
+\end{figure*}
 
-Component heads identify the different components of your paper and are not 
-topically subordinate to each other. Examples include Acknowledgments and 
-References and, for these, the correct style to use is ``Heading 5''. Use 
-``figure caption'' for your Figure captions, and ``table head'' for your 
-table title. Run-in heads, such as ``Abstract'', will require you to apply a 
-style (in this case, italic) in addition to the style provided by the drop 
-down menu to differentiate the head from the text.
+\subsection{Parameters}
 
-Text heads organize the topics on a relational, hierarchical basis. For 
-example, the paper title is the primary text head because all subsequent 
-material relates and elaborates on this one topic. If there are two or more 
-sub-topics, the next level head (uppercase Roman numerals) should be used 
-and, conversely, if there are not at least two sub-topics, then no subheads 
-should be introduced.
-
-\subsection{Figures and Tables}
-\paragraph{Positioning Figures and Tables} Place figures and tables at the top and 
-bottom of columns. Avoid placing them in the middle of columns. Large 
-figures and tables may span across both columns. Figure captions should be 
-below the figures; table heads should appear above the tables. Insert 
-figures and tables after they are cited in the text. Use the abbreviation 
-``Fig.~\ref{fig}'', even at the beginning of a sentence.
-
-\begin{table}[htbp]
-\caption{Table Type Styles}
+\begin{table}
 \begin{center}
-\begin{tabular}{|c|c|c|c|}
+\begin{tabular}{|c|c|}
 \hline
-\textbf{Table}&\multicolumn{3}{|c|}{\textbf{Table Column Head}} \\
-\cline{2-4} 
-\textbf{Head} & \textbf{\textit{Table column subhead}}& \textbf{\textit{Subhead}}& \textbf{\textit{Subhead}} \\
+\textbf{Parameter} & \textbf{Value ranges} \\
 \hline
-copy& More table copy$^{\mathrm{a}}$& &  \\
+Bandwidth & 5Mbps - 200Mbps\\
+Delay & 0ms - 100ms \\
+Packet loss & 0\%, 1\%, 2\% \\
+Object size & Small, large (often not specified in more detail) \\
+Number of objects & 1 - 200 \\
 \hline
-\multicolumn{4}{l}{$^{\mathrm{a}}$Sample of a Table footnote.}
 \end{tabular}
-\label{tab1}
 \end{center}
+\caption{Link parameters used in QUIC benchmarks}
+\label{fig:quic-parameters}
 \end{table}
 
-% \begin{figure}[htbp]
-% \centerline{\includegraphics{fig1.png}}
-% \caption{Example of a figure caption.}
-% \label{fig}
-% \end{figure}
+In the description of their experiments, all papers start with a description of the testing environment. They set up a server and a client, which can either be a desktop or a mobile device. Then they continue to describe the condition of the link between the two participants. All papers that were included in this research have investigated the influence of the link's bandwidth, delay (round trip time) and packet loss. 
 
-Figure Labels: Use 8 point Times New Roman for Figure labels. Use words 
-rather than symbols or abbreviations when writing Figure axis labels to 
-avoid confusing the reader. As an example, write the quantity 
-``Magnetization'', or ``Magnetization, M'', not just ``M''. If including 
-units in the label, present them within parentheses. Do not label axes only 
-with units. In the example, write ``Magnetization (A/m)'' or ``Magnetization 
-\{A[m(1)]\}'', not just ``A/m''. Do not label axes with a ratio of 
-quantities and units. For example, write ``Temperature (K)'', not 
-``Temperature/K''.
+Furthermore, they vary the type of resource that is retrieved, especially the number of objects and the size of the individual objects. While some websites include a large number of small assets, e.g., CSS and Javascript files, others also contain large images and video files.
 
-\section*{Acknowledgment}
+The exact values looked at for each parameter varied by paper, but table \ref{fig:quic-parameters} tries to summarise the most popular value choices.
 
-The preferred spelling of the word ``acknowledgment'' in America is without 
-an ``e'' after the ``g''. Avoid the stilted expression ``one of us (R. B. 
-G.) thanks $\ldots$''. Instead, try ``R. B. G. thanks$\ldots$''. Put sponsor 
-acknowledgments in the unnumbered footnote on the first page.
 
-\section*{References}
+\subsection{Test beds}
 
-Please number citations consecutively within brackets \cite{b1}. The 
-sentence punctuation follows the bracket \cite{b2}. Refer simply to the reference 
-number, as in \cite{b3}---do not use ``Ref. \cite{b3}'' or ``reference \cite{b3}'' except at 
-the beginning of a sentence: ``Reference \cite{b3} was the first $\ldots$''
+We describe all experiments, in which no public link was used, as test beds. They have the advantage that the benchmarks do not have to share a link with an uncontrollable amount of other peers. Researchers set up a client that can be either a desktop machine or a mobile client and connect it to a server over cable or router. Then, they use the traffic control utility to change the parameters of the link. 
 
-Number footnotes separately in superscripts. Place the actual footnote at 
-the bottom of the column in which it was cited. Do not put footnotes in the 
-abstract or reference list. Use letters for table footnotes.
+Carlucci \cite{HTTPoverUDP} reports that QUIC underperforms when a website has many objects due to the limited number of six concurrent QUIC streams in their test bed. However, they do not investigate the root cause of this rather surprising result, especially since their HTTP/1 client was also restricted to six TCP connections. They also state that HTTP is the clear winner when multiple objects suffer from packet loss.
 
-Unless there are six authors or more give all authors' names; do not use 
-``et al.''. Papers that have not been published, even if they have been 
-submitted for publication, should be cited as ``unpublished'' \cite{b4}. Papers 
-that have been accepted for publication should be cited as ``in press'' \cite{b5}. 
-Capitalize only the first word in a paper title, except for proper nouns and 
-element symbols.
+Megyesi \cite{HowQuickIsQuic} uses QUIC version 20 together with the Google servers and an emulated network link. They report that there is no clear winner between QUIC and HTTP. In detail, their results are:
 
-For papers published in translation journals, please give the English 
-citation first, followed by the original foreign-language citation \cite{b6}.
+\begin{itemize}
+\item QUIC performs poorly under very high bandwidth when large amounts of data must be downloaded
+\item HTTP is the fastest protocol in case of high speed, high packet loss and a high number of large objects.
+\item QUIC performs very well compared to the other two protocols under high RTT values especially when the bandwidth is low
+\item HTTP/2 performs very poorly in high loss environments due to HOL blocking. QUIC does not suffer as much.
+\item Small object size favors QUIC and HTTP/2 against HTTP/1 due to multiplexing
+\end{itemize} 
 
-\begin{thebibliography}{00}
-\bibitem{b1} G. Eason, B. Noble, and I. N. Sneddon, ``On certain integrals of Lipschitz-Hankel type involving products of Bessel functions,'' Phil. Trans. Roy. Soc. London, vol. A247, pp. 529--551, April 1955.
-\bibitem{b2} J. Clerk Maxwell, A Treatise on Electricity and Magnetism, 3rd ed., vol. 2. Oxford: Clarendon, 1892, pp.68--73.
-\bibitem{b3} I. S. Jacobs and C. P. Bean, ``Fine particles, thin films and exchange anisotropy,'' in Magnetism, vol. III, G. T. Rado and H. Suhl, Eds. New York: Academic, 1963, pp. 271--350.
-\bibitem{b4} K. Elissa, ``Title of paper if known,'' unpublished.
-\bibitem{b5} R. Nicole, ``Title of paper with only first word capitalized,'' J. Name Stand. Abbrev., in press.
-\bibitem{b6} Y. Yorozu, M. Hirano, K. Oka, and Y. Tagawa, ``Electron spectroscopy studies on magneto-optical media and plastic substrate interface,'' IEEE Transl. J. Magn. Japan, vol. 2, pp. 740--741, August 1987 [Digests 9th Annual Conf. Magnetics Japan, p. 301, 1982].
-\bibitem{b7} M. Young, The Technical Writer's Handbook. Mill Valley, CA: University Science, 1989.
-\end{thebibliography}
-\vspace{12pt}
-\color{red}
-IEEE conference templates contain guidance text for composing and formatting conference papers. Please ensure that all template text is removed from your conference paper prior to submission to the conference. Failure to remove the template text from your paper may result in your paper not being published.
+As mentioned in section \ref{sec:performance}, Kakhki explains the first two results with the conservative maximum windows sizes used in the quite old QUIC version 20 used by Megyesi.
+
+\begin{figure*}[htbp]
+\centerline{\includegraphics[width=\textwidth]{images/Megyesi QUIC wins.png}}
+\caption{Scenarios in which QUIC outperforms HTTP/2 and HTTP/1 according to \cite{HowQuickIsQuic}}
+\label{fig:megyesi-quic-wins}
+\end{figure*}
+
+
+
+\subsection{Open world}
+
+% Google Search latency
+While Google has a vast amount of data centers that are connected over a private network, some of the Google servers are located in the networks of internet service providers. These servers are referred to as \textit{restricted edge locations (RELs)}. For various reasons, the RELs do not terminate TLS sessions. However, the TCP connection is terminated at the RELs to improve latency. The payload is then forwarded to a server within the Google network where the TLS session is terminated. \cite{Google}
+
+In contrast, QUIC does not allow the termination of the transport session independently of the cryptographic session. Therefore, the RELs only proxy the QUIC connection. Nevertheless, QUIC was still able to improve the latency for Google searches compared to TCP by over 7\%. 
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|cc|cc|cc|}
+\hline
+
+\multicolumn{2}{|c|}{\textbf{Configuration}} & 
+\multicolumn{2}{|c|}{\textbf{onLoad}} & 
+\multicolumn{2}{|c|}{\textbf{onContentLoad}} \\
+\hline
+
+RTT & Package loss & CE & CD & CE & CD \\
+\hline
+
+20ms  & 0\%   & 17.24\% & 35.16\% & 9.67\%  & 34.37\% \\
+20ms  & 0.5\% & 22.98\% & 34.06\% & 12.90\% & 37.50\% \\
+20ms  & 1\%   & 24.13\% & 34.06\% & 8.60\%  & 39.58\% \\
+20ms  & 2\%   & 16.09\% & 35.16\% & 4.30\%  & 40.62\% \\
+100ms & 0\%   & 25.28\% & 29.67\% & 11.82\% & 36.45\% \\
+100ms & 0.5\% & 21.83\% & 35.16\% & 7.52\%  & 36.45\% \\
+100ms & 1\%   & 27.58\% & 31.86\% & 10.75\% & 37.50\% \\
+100ms & 2\%   & 26.43\% & 34.06\% & 10.75\% & 40.62\% \\
+200ms & 0\%   & 20.68\% & 28.57\% & 5.37\%  & 33.33\% \\
+200ms & 0.5\% & 24.13\% & 32.96\% & 8.60\%  & 28.12\% \\
+200ms & 1\%   & 25.28\% & 35.16\% & 9.67\%  & 30.20\% \\
+200ms & 2\%   & 32.18\% & 39.56\% & 9.67\%  & 36.45\% \\
+\hline
+
+\end{tabular}
+\end{center}
+
+\label{table:results-nepomuceno}
+\caption{Results from \cite{Nepomuceno}. It shows the percentage of websites in which QUIC outperformed TCP with cache enabled (CE) and cache disabled (CD)}
+\end{table}
+
+\bibliographystyle{plain}
+\bibliography{references.bib}
 
 \end{document}

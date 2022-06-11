@@ -1,0 +1,62 @@
+\begin{thebibliography}{1}
+
+\bibitem{HTTPoverUDP}
+Gaetano Carlucci, Luca De~Cicco, and Saverio Mascolo.
+\newblock Http over udp: an experimental investigation of quic.
+\newblock 04 2015.
+
+\bibitem{CloudflareTlsHandshake}
+Cloudflare.
+\newblock Was passiert bei einem tls handshake?, 2021.
+
+\bibitem{Quiche}
+Cloudflare.
+\newblock Quiche - savoury implementation of the quic transport protocol and
+  http/3, 2022.
+
+\bibitem{Kakhki}
+Arash~Molavi Kakhki, Samuel Jero, David Choffnes, Cristina Nita-Rotaru, and
+  Alan Mislove.
+\newblock Taking a long look at quic: An approach for rigorous evaluation of
+  rapidly evolving transport protocols.
+\newblock In {\em Proceedings of the 2017 Internet Measurement Conference}, IMC
+  '17, page 290–303, New York, NY, USA, 2017. Association for Computing
+  Machinery.
+
+\bibitem{Google}
+Adam Langley, Alistair Riddoch, Alyssa Wilk, Antonio Vicente, Charles Krasic,
+  Dan Zhang, Fan Yang, Fedor Kouranov, Ian Swett, Janardhan Iyengar, Jeff
+  Bailey, Jeremy Dorfman, Jim Roskind, Joanna Kulik, Patrik Westin, Raman
+  Tenneti, Robbie Shade, Ryan Hamilton, Victor Vasiliev, Wan-Teh Chang, and
+  Zhongyi Shi.
+\newblock The quic transport protocol: Design and internet-scale deployment.
+\newblock In {\em Proceedings of the Conference of the ACM Special Interest
+  Group on Data Communication}, SIGCOMM '17, page 183–196, New York, NY, USA,
+  2017. Association for Computing Machinery.
+
+\bibitem{RemoveServerPush}
+Brad Lassey.
+\newblock Intent to remove: Http/2 and gquic server push, 2020.
+
+\bibitem{HowQuickIsQuic}
+Péter Megyesi, Zsolt Krämer, and Sándor Molnár.
+\newblock How quick is quic?
+\newblock In {\em 2016 IEEE International Conference on Communications (ICC)},
+  pages 1--6, 2016.
+
+\bibitem{Nepomuceno}
+Késsia Nepomuceno, Igor Nogueira~de Oliveira, Rafael~Roque Aschoff, Daniel
+  Bezerra, Maria~Silvia Ito, Wesley Melo, Djamel Sadok, and Géza Szabó.
+\newblock Quic and tcp: A performance evaluation.
+\newblock In {\em 2018 IEEE Symposium on Computers and Communications (ISCC)},
+  pages 00045--00051, 2018.
+
+\bibitem{Kernel}
+Peng Wang, Carmine Bianco, Janne Riihij\"{a}rvi, and Marina Petrova.
+\newblock Implementation and performance evaluation of the quic protocol in
+  linux kernel.
+\newblock In {\em Proceedings of the 21st ACM International Conference on
+  Modeling, Analysis and Simulation of Wireless and Mobile Systems}, MSWIM '18,
+  page 227–234, New York, NY, USA, 2018. Association for Computing Machinery.
+
+\end{thebibliography}
