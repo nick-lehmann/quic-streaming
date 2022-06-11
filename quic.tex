@@ -171,7 +171,7 @@ When the flaws of the first implementation of FEC are fixed, this mechanism coul
 
 
 \section{Performance}
-\label{sec:performance}
+\label{sec:Performance}
 
 % Especially older papers published in 2017 and 2018 have used HTTP/2 in conjunction with QUIC \cite{Yu} \cite{Nepomuceno}. This contradicts the current association between QUIC and HTTP/3, but when those papers were published, HTTP/3 was not yet released and HTTP/2 was the only application of QUIC in practice. 
 
@@ -242,22 +242,24 @@ Megyesi \cite{HowQuickIsQuic} uses QUIC version 20 together with the Google serv
 \item Small object size favors QUIC and HTTP/2 against HTTP/1 due to multiplexing
 \end{itemize} 
 
-As mentioned in section \ref{sec:performance}, Kakhki explains the first two results with the conservative maximum windows sizes used in the quite old QUIC version 20 used by Megyesi.
+As mentioned in section \ref{sec:Performance}, Kakhki explains the first two results with the conservative maximum windows sizes used in the quite old QUIC version 20 used by Megyesi.
 
 \begin{figure*}[htbp]
 \centerline{\includegraphics[width=\textwidth]{images/Megyesi QUIC wins.png}}
-\caption{Scenarios in which QUIC outperforms HTTP/2 and HTTP/1 according to \cite{HowQuickIsQuic}}
+\caption{Scenarios in which QUIC outperforms HTTP/2 and HTTP/1 according to Megyesi \cite{HowQuickIsQuic}}
 \label{fig:megyesi-quic-wins}
-\end{figure*}
+\end{figure*} 
 
+Nepomuceno \cite{Nepomuceno} measured the Page Load Times (PLT) of QUIC. They describe their methodology of finding a collection of 100 websites that have the same object distribution as the top ten thousand websites according to the Alexa site ranking \cite{AlexaRanking}. After finding their collection, they used a tool called Mahimahi to replay the websites under twelve different network conditions. They did not specify their QUIC version but instead specified their client as Google Chrome version 54. According to \cite{ChromeVersionHistory}, this version was released in October 2016 and, therefore, likely includes a QUIC version in the low 20s which is also rather old.
 
+Table \ref{table:nepomuceno-results} shows the results of their investigation. The results are rather surprising given that there was no scenario in which QUIC outperformed TCP. 
 
-\subsection{Open world}
+They run their experiments twice with cache disabled in the first round and cache enabled in the second. The reason for that is that a client does not know upfront if the server is able or willing to communicate over QUIC. Therefore, Chrome starts the first connection with a server using TCP and if the server replies with a certain header, the communication will be switched over to QUIC. Unfortunately, this behavior disables the 0RTT feature of QUIC which allows it to start a lot faster than TCP.
 
-% Google Search latency
-While Google has a vast amount of data centers that are connected over a private network, some of the Google servers are located in the networks of internet service providers. These servers are referred to as \textit{restricted edge locations (RELs)}. For various reasons, the RELs do not terminate TLS sessions. However, the TCP connection is terminated at the RELs to improve latency. The payload is then forwarded to a server within the Google network where the TLS session is terminated. \cite{Google}
+In the second round, they enabled the cache which would allow the client to remember if the server can use QUIC. In contrast to the expected increase in QUIC performance, TCP extends its lead even more. Nepomuceno does not investigate possible explanations for this behavior. According to their measurements, reading the answers from the server took significantly longer for QUIC than it did for TCP. They speculate that this is most likely due to the lacking optimizations of the QUIC stack.
 
-In contrast, QUIC does not allow the termination of the transport session independently of the cryptographic session. Therefore, the RELs only proxy the QUIC connection. Nevertheless, QUIC was still able to improve the latency for Google searches compared to TCP by over 7\%. 
+Nevertheless, he notes that during the TCP experiments the client spent most of the time in the \textit{Connect Phase}. This underlines the fact that QUIC can start streams a lot faster than TCP. As later papers like \cite{Kakhki} and \cite{Kernel} have shown, the disadvantages of QUIC present at the time when Nepomuceno released his paper can be remedied with a more mature QUIC stack and optimized connection parameters for QUIC.
+
 
 \begin{table}
 \begin{center}
@@ -289,9 +291,17 @@ RTT & Package loss & CE & CD & CE & CD \\
 \end{tabular}
 \end{center}
 
-\label{table:results-nepomuceno}
 \caption{Results from \cite{Nepomuceno}. It shows the percentage of websites in which QUIC outperformed TCP with cache enabled (CE) and cache disabled (CD)}
+\label{table:nepomuceno-results}
 \end{table}
+
+
+\subsection{Open world}
+
+% Google Search latency
+While Google has a vast amount of data centers that are connected over a private network, some of the Google servers are located in the networks of internet service providers. These servers are referred to as \textit{restricted edge locations (RELs)}. For various reasons, the RELs do not terminate TLS sessions. However, the TCP connection is terminated at the RELs to improve latency. The payload is then forwarded to a server within the Google network where the TLS session is terminated. \cite{Google}
+
+In contrast, QUIC does not allow the termination of the transport session independently of the cryptographic session. Therefore, the RELs only proxy the QUIC connection. Nevertheless, QUIC was still able to improve the latency for Google searches compared to TCP by over 7\%. 
 
 \bibliographystyle{plain}
 \bibliography{references.bib}

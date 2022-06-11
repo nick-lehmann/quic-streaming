@@ -1,4 +1,8 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
+
+\bibitem{AlexaRanking}
+Inc. Alexa~Internet.
+\newblock Alexa top sites.
 
 \bibitem{HTTPoverUDP}
 Gaetano Carlucci, Luca De~Cicco, and Saverio Mascolo.
@@ -58,5 +62,9 @@ Peng Wang, Carmine Bianco, Janne Riihij\"{a}rvi, and Marina Petrova.
 \newblock In {\em Proceedings of the 21st ACM International Conference on
   Modeling, Analysis and Simulation of Wireless and Mobile Systems}, MSWIM '18,
   page 227–234, New York, NY, USA, 2018. Association for Computing Machinery.
+
+\bibitem{ChromeVersionHistory}
+Wikipedia.
+\newblock Google chrome version history, 2022.
 
 \end{thebibliography}
