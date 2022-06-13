@@ -184,8 +184,6 @@ When the flaws of the first implementation of FEC are fixed, this mechanism coul
 \section{Performance}
 \label{sec:Performance}
 
-% Especially older papers published in 2017 and 2018 have used HTTP/2 in conjunction with QUIC \cite{Yu} \cite{Nepomuceno}. This contradicts the current association between QUIC and HTTP/3, but when those papers were published, HTTP/3 was not yet released and HTTP/2 was the only application of QUIC in practice. 
-
 QUIC was announced in 2013 by Google and since that, many researchers have tested the potential performance advantages compared to HTTP/1 and HTTP/2. As already mentioned, QUIC was implemented completely in user space to allow for rapid development iteration. While this allowed to easily change parts of QUIC, it also brings the disadvantage that the findings of papers are only valid for a certain point in time. In contrast, the TCP stack in Linux, the dominating operating system on servers, is more mature and results are valid for a significantly longer period. 
 
 Unfortunately, in some papers, researchers did not state which version of QUIC they used for their experiments. Even if all results would be annotated with a specific QUIC version, it makes comparing the findings of different papers challenging.
@@ -237,12 +235,10 @@ Furthermore, they vary the type of resource that is retrieved, especially the nu
 The exact values looked at for each parameter varied by paper, but table \ref{fig:quic-parameters} tries to summarise the most popular value choices.
 
 
-\subsection{Test beds}
-
-We describe all experiments, in which no public link was used, as test beds. They have the advantage that the benchmarks do not have to share a link with an uncontrollable amount of other peers. Researchers set up a client that can be either a desktop machine or a mobile client and connect it to a server over cable or router. Then, they use the traffic control utility to change the parameters of the link. 
+\subsection{Megyesi - How quick is QUIC \cite{HowQuickIsQuic}}
 
 % Megyesi - How quick is QUIC?
-Megyesi \cite{HowQuickIsQuic} uses QUIC version 20 together with the Google servers and an emulated network link. They report that there is no clear winner between QUIC and HTTP. In detail, their results are:
+Megyesi uses QUIC version 20 together with the Google servers and an emulated network link. They report that there is no clear winner between QUIC and HTTP. In detail, their results are:
 
 \begin{itemize}
 \item QUIC performs poorly under very high bandwidth when large amounts of data must be downloaded
@@ -260,7 +256,8 @@ As mentioned in section \ref{sec:Performance}, Kakhki explains the first two res
 \label{fig:megyesi-quic-wins}
 \end{figure*} 
 
-% Nepomuceno - QUIC and TCP: A Performance Evaluation
+\subsection{Nepomuceno - QUIC and TCP: A Performance Evaluation}
+
 Nepomuceno \cite{Nepomuceno} measured the Page Load Times (PLT) of QUIC. They describe their methodology of finding a collection of 100 websites that have the same object distribution as the top ten thousand websites according to the Alexa site ranking \cite{AlexaRanking}. After finding their collection, they used a tool called Mahimahi to replay the websites under twelve different network conditions. They did not specify their QUIC version but instead specified their client as Google Chrome version 54. According to \cite{ChromeVersionHistory}, this version was released in October 2016 and, therefore, likely includes a QUIC version in the low 20s which is also rather old.
 
 Table \ref{table:nepomuceno-results} shows the results of their investigation. The results are rather surprising given that there was no scenario in which QUIC outperformed TCP. 
@@ -305,12 +302,24 @@ RTT & Package loss & CE & CD & CE & CD \\
 \label{table:nepomuceno-results}
 \end{table}
 
-% Carlucci - HTTP over UDP: an experimental investigation of QUIC
+\subsection{Carlucci - HTTP over UDP: an experimental investigation of QUIC}
+
 Carlucci \cite{HTTPoverUDP} reports that QUIC underperforms when a website has many objects due to the limited number of six concurrent QUIC streams in their test bed. However, they do not investigate the root cause of this rather surprising result, especially since their HTTP/1 client was also restricted to six TCP connections. They also state that HTTP is the clear winner when multiple objects suffer from packet loss.
 
-% Kakhki
+\subsection{Langley - The QUIC Transport Protocol: Design and Internet-scale Deployment}
 
-% Yu2
+This paper was published by Google to showcase their development and results from the deployment of QUIC. It is the only paper presented here that encompasses a large-scale test run outside a controlled testing environment.
+
+% Google Search latency
+While Google has a vast amount of data centers that are connected over a private network, some of the Google servers are located in the networks of internet service providers. These servers are referred to as \textit{restricted edge locations (RELs)}. For various reasons, the RELs do not terminate TLS sessions. However, the TCP connection is terminated at the RELs to improve latency. The payload is then forwarded to a server within the Google network where the TLS session is terminated. \cite{Google}
+
+In contrast, QUIC does not allow the termination of the transport session independently of the cryptographic session. Therefore, the RELs only proxy the QUIC connection. Nevertheless, QUIC was still able to improve the latency for Google searches compared to TCP by over 7\%. 
+
+% Kakhki
+% \subsection{Kakhki - Taking a Long Look at QUIC}
+
+\subsection{Yu - Dissecting Performance of Production QUIC}
+
 All of the papers that were already mentioned did not have to choose a QUIC implementation. At their release dates, only the open-source implementation of QUIC by Google was released as part of the Chromium project. Due to Google being the author of this implementation, many authors refer to this implementation as gQUIC. However, after the RFC 9000 was published that standardized QUIC, many other implementations saw the light of day. Yu was one of the researchers who published a more recent paper that compares different QUIC clients and servers and comes to a different conclusion \cite{Yu2}. 
 
 Yu compared three clients against the endpoints of Google, Facebook, and Cloudflare, all of which have deployed QUIC for their public endpoints. They found endpoints that serve static data in various sizes and used them to compare the three vendors. While earlier papers often tried to remove the variability that comes from using public endpoints, Yu purposefully chose to use them to test different proprietary deployments and different configurations of QUIC servers. In addition to that, they used three different HTTP/3 clients against each endpoint to look for edge cases. The variety of clients and servers also allows them to test if a performance benefit comes from a specific implementation of QUIC, or the design of QUIC itself.
@@ -376,13 +385,6 @@ Once again, this result comes from an implementation detail rather than the prot
 \end{figure}
 
 However, this does not explain why the image was sent without any interruption from other objects. While QUIC supports the multiplexing of multiple streams over a single connection with priorities assigned to each stream, it does not specify how the data should be sent back to the client. This is an implementation detail that is up to the deployment of the server. Figure \ref{fig:yu2-multiplexing-strategies} shows the different strategies used by the vendors that Yu investigated. Cloudflare's usage of sequential transfer means that the streams are not multiplexed in parallel at all. This is another instance where researchers have to look not only in the RFC for QUIC to determine its inner working but have to check how different vendors handle the same situation differently.
-
-\subsection{Open world}
-
-% Google Search latency
-While Google has a vast amount of data centers that are connected over a private network, some of the Google servers are located in the networks of internet service providers. These servers are referred to as \textit{restricted edge locations (RELs)}. For various reasons, the RELs do not terminate TLS sessions. However, the TCP connection is terminated at the RELs to improve latency. The payload is then forwarded to a server within the Google network where the TLS session is terminated. \cite{Google}
-
-In contrast, QUIC does not allow the termination of the transport session independently of the cryptographic session. Therefore, the RELs only proxy the QUIC connection. Nevertheless, QUIC was still able to improve the latency for Google searches compared to TCP by over 7\%. 
 
 \section{Conclusion}
 
