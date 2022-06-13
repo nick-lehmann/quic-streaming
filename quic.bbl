@@ -18,6 +18,10 @@ Cloudflare.
 \newblock Quiche - savoury implementation of the quic transport protocol and
   http/3, 2022.
 
+\bibitem{Proxygen}
+Facebook.
+\newblock Proxygen, 2022.
+
 \bibitem{Kakhki}
 Arash~Molavi Kakhki, Samuel Jero, David Choffnes, Cristina Nita-Rotaru, and
   Alan Mislove.
@@ -66,5 +70,11 @@ Peng Wang, Carmine Bianco, Janne Riihij\"{a}rvi, and Marina Petrova.
 \bibitem{ChromeVersionHistory}
 Wikipedia.
 \newblock Google chrome version history, 2022.
+
+\bibitem{Yu2}
+Alexander Yu and Theophilus~A. Benson.
+\newblock Dissecting performance of production quic.
+\newblock In {\em Proceedings of the Web Conference 2021}, WWW '21, page
+  1157–1168, New York, NY, USA, 2021. Association for Computing Machinery.
 
 \end{thebibliography}

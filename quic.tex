@@ -26,9 +26,7 @@
 \maketitle
 
 \begin{abstract}
-This document is a model and instructions for \LaTeX.
-This and the IEEEtran.cls file define the components of your paper [title, text, heads, etc.]. *CRITICAL: Do Not Use Symbols, Special Characters, Footnotes, 
-or Math in Paper Title or Abstract.
+This paper investigates the performance of QUIC, a protocol originally announced and developed by Google. QUIC was standardized in 2019 and is now the basis for HTTP/3. We have a look at the performance of QUIC by collecting performance results from different papers and explain why results from different researchers can vary significantly. The result is an overall comparison of QUIC to HTTP/1 and HTTP/2 where we emphasize how QUIC achieves better startup times.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -44,6 +42,8 @@ In contrast to HTTP/1, where streaming was done using workarounds on top of an o
 As this paper aims to evaluate streaming, we have to first clarify what is exactly meant by this term. From the perspective of the QUIC transport layer, everything transport of bytes is a stream. However, a developer working with HTTP/3, an application layer built on top of QUIC, would differentiate between classical requests and responses on one side (which are realized using QUIC streams), and HTTP streaming on the other side. Typical examples of the latter are video players or conferencing tools where the next seconds of the video and audio are streamed to the client, either on-demand or as soon as they become available.
 
 This paper does not conduct any new experiments. Instead, we collect results from different papers released between 2016 and 2021 and compare them. Furthermore, we explain how QUIC has changed over the years to put the results from different times into context and to explain why some differ significantly from each other.
+
+% Earlier papers only focused on gQUIC; first search results as they were cited more often
 
 \section{History}
 
@@ -76,7 +76,7 @@ In contrast to HTTP/1, SPDY opens only a single TCP connection to the server. Af
 Another feature of SPDY was request prioritization. Clients could specify a priority level for each stream and the server then schedules the data transfer to send the objects with the highest prioritization first. Hence, browsers were able to prioritize resources needed for rendering the page, e.g., Javascript code, while images outside of the initial viewport receive a lower priority \cite{HowQuickIsQuic}.
 
 % Header compression
-Many websites require many subrequests after the initial page has loaded. In HTTP/1, the client has to send all required HTTP headers again with each request. Therefore, SPDY introduces a header compression to reduce the amount of bytes that must be transmitted.
+Many websites require many subrequests after the initial page has loaded. In HTTP/1, the client has to send all required HTTP headers again with each request. Therefore, SPDY introduces a header compression to reduce the number of bytes that must be transmitted.
 
 % Server push
 In some cases, the server might already know which resources the client will likely request next. Using the new server push mechanism, the server can send these objects preemptively to the client. However, the server does not know which objects are already in the client's cache, and many objects transmitted using a server push were often unnecessary. Hence, the mechanism was not used to a great extent and Chromium has removed support for it \cite{RemoveServerPush}.
@@ -149,6 +149,8 @@ The drawback, that the first connection to a server has to be TCP, can be remedi
 
 \subsection{Congestion control algorithm, Hybrid Slow Start}
 % TCP-Cubic by default
+Similar to TCP, QUIC can be used with different congestion control algorithms. 
+
 % A single QUIC connection is equivalent to multiple TCP connections. The congestion control algorithm can be configured to be similarly aggressive as multiple TCP connections.
 % - TCP outperforms QUIC when they compete \cite{Yu}
 % - QUIC outperforms TCP when they compete (cite missing)
@@ -221,7 +223,7 @@ Number of objects & 1 - 200 \\
 \label{fig:quic-parameters}
 \end{table}
 
-In the description of their experiments, all papers start with a description of the testing environment. They set up a server and a client, which can either be a desktop or a mobile device. Then they continue to describe the condition of the link between the two participants. All papers that were included in this research have investigated the influence of the link's bandwidth, delay (round trip time) and packet loss. 
+In the description of their experiments, all papers start with a description of the testing environment. They set up a server and a client, which can either be a desktop or a mobile device. Then they continue to describe the condition of the link between the two participants. All papers that were included in this research have investigated the influence of the link's bandwidth, delay (round trip time), and packet loss. 
 
 Furthermore, they vary the type of resource that is retrieved, especially the number of objects and the size of the individual objects. While some websites include a large number of small assets, e.g., CSS and Javascript files, others also contain large images and video files.
 
@@ -232,13 +234,12 @@ The exact values looked at for each parameter varied by paper, but table \ref{fi
 
 We describe all experiments, in which no public link was used, as test beds. They have the advantage that the benchmarks do not have to share a link with an uncontrollable amount of other peers. Researchers set up a client that can be either a desktop machine or a mobile client and connect it to a server over cable or router. Then, they use the traffic control utility to change the parameters of the link. 
 
-Carlucci \cite{HTTPoverUDP} reports that QUIC underperforms when a website has many objects due to the limited number of six concurrent QUIC streams in their test bed. However, they do not investigate the root cause of this rather surprising result, especially since their HTTP/1 client was also restricted to six TCP connections. They also state that HTTP is the clear winner when multiple objects suffer from packet loss.
-
+% Megyesi - How quick is QUIC?
 Megyesi \cite{HowQuickIsQuic} uses QUIC version 20 together with the Google servers and an emulated network link. They report that there is no clear winner between QUIC and HTTP. In detail, their results are:
 
 \begin{itemize}
 \item QUIC performs poorly under very high bandwidth when large amounts of data must be downloaded
-\item HTTP is the fastest protocol in case of high speed, high packet loss and a high number of large objects.
+\item HTTP is the fastest protocol in case of high speed, high packet loss, and a high number of large objects.
 \item QUIC performs very well compared to the other two protocols under high RTT values especially when the bandwidth is low
 \item HTTP/2 performs very poorly in high loss environments due to HOL blocking. QUIC does not suffer as much.
 \item Small object size favors QUIC and HTTP/2 against HTTP/1 due to multiplexing
@@ -252,16 +253,16 @@ As mentioned in section \ref{sec:Performance}, Kakhki explains the first two res
 \label{fig:megyesi-quic-wins}
 \end{figure*} 
 
+% Nepomuceno - QUIC and TCP: A Performance Evaluation
 Nepomuceno \cite{Nepomuceno} measured the Page Load Times (PLT) of QUIC. They describe their methodology of finding a collection of 100 websites that have the same object distribution as the top ten thousand websites according to the Alexa site ranking \cite{AlexaRanking}. After finding their collection, they used a tool called Mahimahi to replay the websites under twelve different network conditions. They did not specify their QUIC version but instead specified their client as Google Chrome version 54. According to \cite{ChromeVersionHistory}, this version was released in October 2016 and, therefore, likely includes a QUIC version in the low 20s which is also rather old.
 
 Table \ref{table:nepomuceno-results} shows the results of their investigation. The results are rather surprising given that there was no scenario in which QUIC outperformed TCP. 
 
-They run their experiments twice with cache disabled in the first round and cache enabled in the second. The reason for that is that a client does not know upfront if the server is able or willing to communicate over QUIC. Therefore, Chrome starts the first connection with a server using TCP and if the server replies with a certain header, the communication will be switched over to QUIC. Unfortunately, this behavior disables the 0RTT feature of QUIC which allows it to start a lot faster than TCP.
+They run their experiments twice with cache disabled in the first round and cache enabled in the second. The reason for that is that a client does not know upfront if the server is able or willing to communicate over QUIC. Therefore, Chrome starts the first connection with a server using TCP, and if the server replies with a certain header, the communication will be switched over to QUIC. Unfortunately, this behavior disables the 0RTT feature of QUIC which allows it to start a lot faster than TCP.
 
 In the second round, they enabled the cache which would allow the client to remember if the server can use QUIC. In contrast to the expected increase in QUIC performance, TCP extends its lead even more. Nepomuceno does not investigate possible explanations for this behavior. According to their measurements, reading the answers from the server took significantly longer for QUIC than it did for TCP. They speculate that this is most likely due to the lacking optimizations of the QUIC stack.
 
 Nevertheless, he notes that during the TCP experiments the client spent most of the time in the \textit{Connect Phase}. This underlines the fact that QUIC can start streams a lot faster than TCP. As later papers like \cite{Kakhki} and \cite{Kernel} have shown, the disadvantages of QUIC present at the time when Nepomuceno released his paper can be remedied with a more mature QUIC stack and optimized connection parameters for QUIC.
-
 
 \begin{table}
 \begin{center}
@@ -297,6 +298,77 @@ RTT & Package loss & CE & CD & CE & CD \\
 \label{table:nepomuceno-results}
 \end{table}
 
+% Carlucci - HTTP over UDP: an experimental investigation of QUIC
+Carlucci \cite{HTTPoverUDP} reports that QUIC underperforms when a website has many objects due to the limited number of six concurrent QUIC streams in their test bed. However, they do not investigate the root cause of this rather surprising result, especially since their HTTP/1 client was also restricted to six TCP connections. They also state that HTTP is the clear winner when multiple objects suffer from packet loss.
+
+% Kakhki
+
+% Yu2
+All of the papers that were already mentioned did not have to choose a QUIC implementation. At their release dates, only the open-source implementation of QUIC by Google was released as part of the Chromium project. Due to Google being the author of this implementation, many authors refer to this implementation as gQUIC. However, after the RFC 9000 was published that standardized QUIC, many other implementations saw the light of day. Yu was one of the researchers who published a more recent paper that compares different QUIC clients and servers and comes to a different conclusion \cite{Yu2}. 
+
+Yu compared three clients against the endpoints of Google, Facebook, and Cloudflare, all of which have deployed QUIC for their public endpoints. They found endpoints that serve static data in various sizes and used them to compare the three vendors. While earlier papers often tried to remove the variability that comes from using public endpoints, Yu purposefully chose to use them to test different proprietary deployments and different configurations of QUIC servers. In addition to that, they used three different HTTP/3 clients against each endpoint to look for edge cases. The variety of clients and servers also allows them to test if a performance benefit comes from a specific implementation of QUIC, or the design of QUIC itself.
+
+The first benchmark encompasses the retrieval of a single static object of varying size. For each combination of client, server, and object, the time to last byte (TTLB) was measured. They showed, that QUIC performed consistently better than HTTP/2 for smaller payloads without added loss or delay. This behavior was the same regardless of the client or server and is, therefore, likely a result of the design of QUIC. They attribute this advantage to the 1RTT mechanism of QUIC, which has a bigger impact when the connections are short-lived. For larger payloads, HTTP/3 performed similarly to HTTP/2.
+
+\begin{figure}[htbp]
+\includegraphics[width=8cm,keepaspectratio]{images/Yu2/Cloudflare anomaly.png}
+\caption{Bytes acknowledged for 1MB payloads with 1\% loss \cite{Yu2}}
+\label{fig:yu2-cloudflare-anomaly}
+\end{figure}
+
+After that, Yu added extra loss to the connection. Similar to the first test, HTTP/3 performed better for smaller payloads of 100KB in size, while HTTP/2 caught up to HTTP/3 for bigger payloads. However, only for the Cloudflare endpoint, HTTP/3 performed notably worse as seen in figure \ref{fig:yu2-cloudflare-anomaly}. This anomaly was caused by the differing congestion control algorithms. Cloudflare uses Cubic for QUIC, but BRR for TCP. Cubic uses packet loss for congestion control and sets the maximum sending window to the current windows when a packet is lost. In contrast, BBR uses the rate of ACK packets sent back from the receiver and, hence, can utilize the full bandwidth of a link better in the presence of extra loss. This result shows that QUIC's feature of pluggable congestion control algorithms necessitates the differentiation between QUIC itself and the congestion control used. Otherwise, researchers might come to false conclusions about QUIC itself. Furthermore, it shows that vendors might need to adapt their congestion control to the condition of the network links they expect users to use.
+
+\begin{figure*}[h]
+\includegraphics[width=\textwidth,keepaspectratio]{images/Yu2/HTTP3 Single object benchmarks.png}
+\caption{Heatmaps from \cite{Yu2} that show the performance differences between HTTP/3 clients. Each cell shows the difference from the median TTLB to the lowest TTLB of any client. Therefore, 0\% is the best value that can be achieved. Differences below 5\% are not labelled.}
+\label{fig:yu2-http3-single-object-benchmark}
+\end{figure*}
+
+When Yu performs another round of his experiments with added delay to increase the RTT, they noticed another anomaly. QUIC outperformed HTTP/2 substantially due to the decrease in required round trips to establish a connection. However, for the endpoints provided by Facebook, the QUIC-enabled HTTP client Proxygen \cite{Proxygen}, published by Facebook itself, performed tremendously badly as shown in figure \ref{fig:yu2-http3-single-object-benchmark}. After some investigation, Yu found out that this behavior was caused by a bug in the BBR implementation of Proxygen. Again, this bug underlines that the chosen implementation of QUIC can have more effect on the results of experiments than the design of QUIC itself.
+
+\begin{figure}[htbp]
+\includegraphics[width=8cm,keepaspectratio]{images/Yu2/HTTP3 Multiple objects benchmark.png}
+\caption{HTTP/3 vs HTTP/2 performance based on SI. The speed of the network link was 10Mbps.}
+\label{fig:yu2-http3-multiple-object-benchmark}
+\end{figure}
+
+After testing the performance of HTTP/3 with single objects, Yu proceeded to test real websites with multiple objects. All multi-object tests were measured using a metric called Speed Index (SI) which describes how much the screen space visible to the user changes during loading. A low SI score describes a website that loads instantly rather than gradually. Hence, a low SI score is preferred.
+
+HTTP/3 removes the HOL blocking present in HTTP/2. Because of this, someone would expect the results to be in favor of HTTP/3 when more loss is added to the link for Facebook and Google, but not for Cloudflare due to the aforementioned usage of Cubic. Furthermore, HTTP/2 and HTTP/3 are both stream-native protocols and due to the fewer roundtrips of QUIC, it is also to be expected that HTTP/3 has an edge over HTTP/2 for smaller websites as it can start to stream faster.
+
+While the results of the multi-object test, shown in figure \ref{fig:yu2-http3-multiple-object-benchmark}, show the advantage of HTTP/3 for smaller payloads again, they also reject the hypothesis that the removal of HOL blocking makes it more resilient to additional loss. For both Facebook and Google, the difference in the medium and large websites was negligible. 
+
+\begin{figure}[htbp]
+  \begin{center}
+  \includegraphics[width=8cm,keepaspectratio]{images/Yu2/Image load comparison.png}
+  \caption{Start and end times for loading the image on the large Cloudflare website with HTTP/2 and HTTP/3}
+  \label{fig:yu2-image-load-comparison}
+  \end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+  \begin{center}
+  \includegraphics[width=8cm,keepaspectratio]{images/Yu2/Chrome HTTP frames.png}
+  \caption{HTTP frames received by Chrome for the large Cloudflare website}
+  \label{fig:yu2-chrome-http-frames}
+  \end{center}
+\end{figure}
+
+Contrary to the expectations, Cloudflare scores were undoubtedly in favor of HTTP/3 with added loss or added delay even for the medium and large websites. The large website contains a large image at the center of the initial screen presented to the user. HTTP/3 was able to load this image faster which resulted in a lower SI score. The extracted HAR logs from Google Chrome, visualized in figure \ref{fig:yu2-image-load-comparison}, show that H3 was able to load the image a lot faster even if requested later. 
+
+Yu states that Chrome has assigned similar priorities to the objects of the website when using either HTTP/2 or HTTP/3, prioritizing the main image over other resources. Figure \ref{fig:yu2-chrome-http-frames} shows that Chrome received the main image in one chunk at the beginning of the connection when HTTP/3 was used. However, over the HTTP/2 connection, Chrome received the image a lot later. 
+
+Once again, this result comes from an implementation detail rather than the protocol design. A Cloudflare engineer confirmed to Yu that Cloudflare decided to ignore the browser-based prioritization for images in HTTP/2, which, according to them, should improve performance. Furthermore, the engineer also disclosed that Cloudflare also ignores the priorities in HTTP/3. However, in the latter case, the FIFO scheduler of Cloudflare just so happened to send the image first.
+
+\begin{figure}[htbp]
+  \begin{center}
+  \includegraphics[width=8cm,keepaspectratio]{images/Yu2/HTTP3 multiplexing strategies.png}
+  \caption{HTTP frames received by Chrome for the large Cloudflare website}
+  \label{fig:yu2-multiplexing-strategies}
+  \end{center}
+\end{figure}
+
+However, this does not explain why the image was sent without any interruption from other objects. While QUIC supports the multiplexing of multiple streams over a single connection with priorities assigned to each stream, it does not specify how the data should be sent back to the client. This is an implementation detail that is up to the deployment of the server. Figure \ref{fig:yu2-multiplexing-strategies} shows the different strategies used by the vendors that Yu investigated. Cloudflare's usage of sequential transfer means that the streams are not multiplexed in parallel at all. This is another instance where researchers have to look not only in the RFC for QUIC to determine its inner working but have to check how different vendors handle the same situation differently.
 
 \subsection{Open world}
 
@@ -304,6 +376,16 @@ RTT & Package loss & CE & CD & CE & CD \\
 While Google has a vast amount of data centers that are connected over a private network, some of the Google servers are located in the networks of internet service providers. These servers are referred to as \textit{restricted edge locations (RELs)}. For various reasons, the RELs do not terminate TLS sessions. However, the TCP connection is terminated at the RELs to improve latency. The payload is then forwarded to a server within the Google network where the TLS session is terminated. \cite{Google}
 
 In contrast, QUIC does not allow the termination of the transport session independently of the cryptographic session. Therefore, the RELs only proxy the QUIC connection. Nevertheless, QUIC was still able to improve the latency for Google searches compared to TCP by over 7\%. 
+
+\section{Conclusion}
+
+In this paper, we compared the performance results of different researchers who benchmarked QUIC and HTTP/3 and compared the results to either HTTP/1, HTTP/2, or both. We show that due to the rapid development of QUIC in the last years, it is crucial to know the year and exact QUIC version a researcher has used to conduct the experiments.
+
+Earlier papers published before the QUIC RFC was finalized solely focused on the open-source implementation provided by Google. Their results were mixed but could mostly agree that QUIC performs well in network conditions that emulate a mobile connection: low bandwidth, high packet loss, and high delay. However, HTTP/1 outperformed it measurably when the link was more stable and bandwidth was high.
+
+QUIC evolved and later versions were more tuned to perform well in the latter case. Kakhki \cite{Kakhki} and Yu \cite{Yu2} have shown that increasing the conservative configuration options used by earlier QUIC versions helps QUIC to perform better in high bandwidths environments. Furthermore, Yu has shown that performance measurements of QUIC must be treated with more care than benchmarks of the more mature TCP due to differences in the rather new QUIC implementations. 
+
+Coming back to the topic of this paper, all papers cited in this work have shown that the 0RTT and 1RTT features of QUIC improve the startup times of QUIC. In all presented experiments, QUIC always had an edge on both HTTP/2 and HTTP/1 when the transmitted payload was small, as the savings of some round-trips compared to TCP are more significant when the connection is short-lived.
 
 \bibliographystyle{plain}
 \bibliography{references.bib}

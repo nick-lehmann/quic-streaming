@@ -4,55 +4,57 @@ The top-level auxiliary file: quic.aux
 The style file: plain.bst
 Database file #1: references.bib
 Warning--entry type for "CloudflareTlsHandshake" isn't style-file defined
---line 141 of file references.bib
+--line 158 of file references.bib
 Warning--entry type for "RemoveServerPush" isn't style-file defined
---line 149 of file references.bib
+--line 166 of file references.bib
 Warning--entry type for "Quiche" isn't style-file defined
---line 157 of file references.bib
+--line 174 of file references.bib
 Warning--entry type for "ChromeVersionHistory" isn't style-file defined
---line 165 of file references.bib
+--line 182 of file references.bib
 Warning--entry type for "AlexaRanking" isn't style-file defined
---line 173 of file references.bib
+--line 190 of file references.bib
+Warning--entry type for "Proxygen" isn't style-file defined
+--line 196 of file references.bib
 Warning--empty booktitle in HTTPoverUDP
-You've used 11 entries,
+You've used 13 entries,
             2118 wiz_defined-function locations,
-            563 strings with 6227 characters,
-and the built_in function-call counts, 4612 in all, are:
-= -- 432
-> -- 273
-< -- 5
-+ -- 110
-- -- 98
-* -- 282
-:= -- 712
-add.period$ -- 31
-call.type$ -- 11
-change.case$ -- 82
+            573 strings with 6393 characters,
+and the built_in function-call counts, 5338 in all, are:
+= -- 513
+> -- 293
+< -- 6
++ -- 118
+- -- 104
+* -- 307
+:= -- 808
+add.period$ -- 37
+call.type$ -- 13
+change.case$ -- 91
 chr.to.int$ -- 0
-cite$ -- 12
-duplicate$ -- 193
-empty$ -- 327
-format.name$ -- 98
-if$ -- 1015
+cite$ -- 14
+duplicate$ -- 237
+empty$ -- 387
+format.name$ -- 104
+if$ -- 1194
 int.to.chr$ -- 0
-int.to.str$ -- 11
-missing$ -- 6
-newline$ -- 53
-num.names$ -- 22
-pop$ -- 120
+int.to.str$ -- 13
+missing$ -- 7
+newline$ -- 62
+num.names$ -- 26
+pop$ -- 135
 preamble$ -- 1
-purify$ -- 71
+purify$ -- 78
 quote$ -- 0
-skip$ -- 187
+skip$ -- 235
 stack$ -- 0
-substring$ -- 166
-swap$ -- 88
-text.length$ -- 5
+substring$ -- 198
+swap$ -- 113
+text.length$ -- 6
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 44
+type$ -- 52
 warning$ -- 1
-while$ -- 29
-width$ -- 13
-write$ -- 114
-(There were 6 warnings)
+while$ -- 34
+width$ -- 15
+write$ -- 136
+(There were 7 warnings)
