@@ -77,4 +77,10 @@ Alexander Yu and Theophilus~A. Benson.
 \newblock In {\em Proceedings of the Web Conference 2021}, WWW '21, page
   1157–1168, New York, NY, USA, 2021. Association for Computing Machinery.
 
+\bibitem{Yu}
+Yajun Yu, Mingwei Xu, and Yuan Yang.
+\newblock When quic meets tcp: An experimental study.
+\newblock In {\em 2017 IEEE 36th International Performance Computing and
+  Communications Conference (IPCCC)}, pages 1--8, 2017.
+
 \end{thebibliography}

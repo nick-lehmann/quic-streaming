@@ -147,20 +147,27 @@ It is worth noting, that the 0RTT and 1RTT mechanisms of QUIC are only available
 % Mobile applications might already know if the server speaks QUIC or not
 The drawback, that the first connection to a server has to be TCP, can be remedied in mobile applications as they often know which server they are going to talk to. For example, the YouTube app was one of the applications used by Google for testing QUIC. As both server and client are controlled by Google, they could skip the initial TCP connection. However, even in these cases, the application might have to fall back to TCP, as some routers block UDP, blocking QUIC altogether.
 
-\subsection{Congestion control algorithm, Hybrid Slow Start}
+% \subsection{Congestion control algorithm, Hybrid Slow Start}
+\subsection{Congestion control algorithm}
+
 % TCP-Cubic by default
-Similar to TCP, QUIC can be used with different congestion control algorithms. 
+Similar to TCP, QUIC can be used with different congestion control algorithms. In the early implementations, QUIC used Cubic by default. However, Reno and the Bottleneck Bandwidth and Round-trip propagation time (BBR) algorithm are two other popular choices.
+
+% Improved inputs for the congestion control algorithms
+All these congestion control algorithms are not new and have been used with TCP for a very long time. However, QUIC provides more precise inputs for these algorithms to work with. Its new ACK implementation eliminates ACK ambiguity which occurs when TCP cannot differentiate between lost packets and out-of-order delivery. Together with more precise timing information, the existing algorithms might be able to perform better when used together with QUIC instead of TCP.
+
+% Fairness
+QUIC uses existing congestion control algorithms but configures them differently. Due to its multiplexing nature, a single QUIC connection effectively emulates multiple TCP connections. Hence, some researchers investigated if both protocols behave fairly when they concurrently use the same link. While \cite{Yu} reports that TCP dramatically grabs more of the bandwidth of the shared link compared to QUIC, \cite{Kakhki} observes the exact opposite. However, most of the experiments we look at in this work are tested individually and since the fairness of QUIC does not help us to study if it can start up faster, we do not investigate it further.
 
 % A single QUIC connection is equivalent to multiple TCP connections. The congestion control algorithm can be configured to be similarly aggressive as multiple TCP connections.
 % - TCP outperforms QUIC when they compete \cite{Yu}
-% - QUIC outperforms TCP when they compete (cite missing)
-% Transfer window TBA
+% - QUIC outperforms TCP when they compete \cite{Kakhki}
 
-\subsection{Flow control}
+% \subsection{Flow control}
 % Flow control protects the receiver from getting overwhelmed by a very fast sender. Receivers only have a limited amount of memory to store data that was not already acknowledged.
 % Receivers advertises both the limit of total bytes per stream and per connection \cite[Section 4.1]{RFC}. 
 
-\subsection{Packet sizing}
+% \subsection{Packet sizing}
 % 
 
 \subsection{Forward Error Correction (FEC)}
@@ -316,13 +323,13 @@ The first benchmark encompasses the retrieval of a single static object of varyi
 \label{fig:yu2-cloudflare-anomaly}
 \end{figure}
 
-After that, Yu added extra loss to the connection. Similar to the first test, HTTP/3 performed better for smaller payloads of 100KB in size, while HTTP/2 caught up to HTTP/3 for bigger payloads. However, only for the Cloudflare endpoint, HTTP/3 performed notably worse as seen in figure \ref{fig:yu2-cloudflare-anomaly}. This anomaly was caused by the differing congestion control algorithms. Cloudflare uses Cubic for QUIC, but BRR for TCP. Cubic uses packet loss for congestion control and sets the maximum sending window to the current windows when a packet is lost. In contrast, BBR uses the rate of ACK packets sent back from the receiver and, hence, can utilize the full bandwidth of a link better in the presence of extra loss. This result shows that QUIC's feature of pluggable congestion control algorithms necessitates the differentiation between QUIC itself and the congestion control used. Otherwise, researchers might come to false conclusions about QUIC itself. Furthermore, it shows that vendors might need to adapt their congestion control to the condition of the network links they expect users to use.
-
 \begin{figure*}[h]
 \includegraphics[width=\textwidth,keepaspectratio]{images/Yu2/HTTP3 Single object benchmarks.png}
 \caption{Heatmaps from \cite{Yu2} that show the performance differences between HTTP/3 clients. Each cell shows the difference from the median TTLB to the lowest TTLB of any client. Therefore, 0\% is the best value that can be achieved. Differences below 5\% are not labelled.}
 \label{fig:yu2-http3-single-object-benchmark}
 \end{figure*}
+
+After that, Yu added extra loss to the connection. Similar to the first test, HTTP/3 performed better for smaller payloads of 100KB in size, while HTTP/2 caught up to HTTP/3 for bigger payloads. However, only for the Cloudflare endpoint, HTTP/3 performed notably worse as seen in figure \ref{fig:yu2-cloudflare-anomaly}. This anomaly was caused by the differing congestion control algorithms. Cloudflare uses Cubic for QUIC, but BRR for TCP. Cubic uses packet loss for congestion control and sets the maximum sending window to the current windows when a packet is lost. In contrast, BBR uses the rate of ACK packets sent back from the receiver and, hence, can utilize the full bandwidth of a link better in the presence of extra loss. This result shows that QUIC's feature of pluggable congestion control algorithms necessitates the differentiation between QUIC itself and the congestion control used. Otherwise, researchers might come to false conclusions about QUIC itself. Furthermore, it shows that vendors might need to adapt their congestion control to the condition of the network links they expect users to use.
 
 When Yu performs another round of his experiments with added delay to increase the RTT, they noticed another anomaly. QUIC outperformed HTTP/2 substantially due to the decrease in required round trips to establish a connection. However, for the endpoints provided by Facebook, the QUIC-enabled HTTP client Proxygen \cite{Proxygen}, published by Facebook itself, performed tremendously badly as shown in figure \ref{fig:yu2-http3-single-object-benchmark}. After some investigation, Yu found out that this behavior was caused by a bug in the BBR implementation of Proxygen. Again, this bug underlines that the chosen implementation of QUIC can have more effect on the results of experiments than the design of QUIC itself.
 

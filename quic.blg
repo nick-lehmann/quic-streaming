@@ -16,45 +16,45 @@ Warning--entry type for "AlexaRanking" isn't style-file defined
 Warning--entry type for "Proxygen" isn't style-file defined
 --line 196 of file references.bib
 Warning--empty booktitle in HTTPoverUDP
-You've used 13 entries,
+You've used 14 entries,
             2118 wiz_defined-function locations,
-            573 strings with 6393 characters,
-and the built_in function-call counts, 5338 in all, are:
-= -- 513
-> -- 293
-< -- 6
-+ -- 118
-- -- 104
-* -- 307
-:= -- 808
-add.period$ -- 37
-call.type$ -- 13
-change.case$ -- 91
+            579 strings with 6570 characters,
+and the built_in function-call counts, 5734 in all, are:
+= -- 549
+> -- 311
+< -- 7
++ -- 125
+- -- 110
+* -- 331
+:= -- 868
+add.period$ -- 40
+call.type$ -- 14
+change.case$ -- 97
 chr.to.int$ -- 0
-cite$ -- 14
-duplicate$ -- 237
-empty$ -- 387
-format.name$ -- 104
-if$ -- 1194
+cite$ -- 15
+duplicate$ -- 256
+empty$ -- 422
+format.name$ -- 110
+if$ -- 1285
 int.to.chr$ -- 0
-int.to.str$ -- 13
-missing$ -- 7
-newline$ -- 62
-num.names$ -- 26
-pop$ -- 135
+int.to.str$ -- 14
+missing$ -- 8
+newline$ -- 67
+num.names$ -- 28
+pop$ -- 144
 preamble$ -- 1
-purify$ -- 78
+purify$ -- 83
 quote$ -- 0
-skip$ -- 235
+skip$ -- 249
 stack$ -- 0
-substring$ -- 198
-swap$ -- 113
-text.length$ -- 6
+substring$ -- 215
+swap$ -- 120
+text.length$ -- 7
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 52
+type$ -- 56
 warning$ -- 1
-while$ -- 34
-width$ -- 15
-write$ -- 136
+while$ -- 38
+width$ -- 16
+write$ -- 147
 (There were 7 warnings)
